@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+*.log
+*.tsbuildinfo
+.env
+
+# Local SQLite database (recreate with `npm run seed`)
+database/*.sqlite
+database/*.sqlite-journal
