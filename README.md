@@ -40,6 +40,12 @@ npm run build        # builds frontend/dist and backend/dist
 npm start            # http://localhost:3000  (UI)  +  http://localhost:3000/api  (API)
 ```
 
+Or both in one step (works in Windows PowerShell 5, which does not support `&&`):
+
+```bash
+npm run prod
+```
+
 ### Run (development, hot reload)
 
 ```bash
