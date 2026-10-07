@@ -10,6 +10,8 @@ A monolithic, single-repo library management app:
 
 In production the NestJS server serves the built React app **and** the REST API from one port (`http://localhost:3000`).
 
+Detailed docs live in [`docs/knowledge-base/`](docs/knowledge-base/): [Project overview](docs/knowledge-base/PROJECT_OVERVIEW.md) · [Architecture](docs/knowledge-base/ARCHITECTURE.md) · [Database](docs/knowledge-base/DATABASE.md) · [API conventions](docs/knowledge-base/API_CONVENTIONS.md).
+
 ## Features
 
 - **Books** – catalogue CRUD, search by title/author/ISBN/category, copy tracking (available / total)

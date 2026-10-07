@@ -1,0 +1,58 @@
+# Project Overview
+
+## What the product does
+
+**Library Management System (LMS)** is a web app for a small library to manage its book catalogue, its members, and the lending of books (issue, return, overdue tracking, late fines). It is a single monolithic repo: React frontend + NestJS backend + local SQLite database, served from one port.
+
+## Who uses it
+
+| User | What they do |
+| --- | --- |
+| **Librarian / staff** (primary, only user type) | Maintains the catalogue, registers members, issues and returns books, watches overdue loans on the dashboard |
+
+There is **no authentication** and no member-facing portal — the app assumes it runs on a trusted staff machine / local network.
+
+## Main flows
+
+1. **Dashboard** (`/`) – see totals (titles, copies, available copies, members, books on loan, overdue), the 5 most recent loans and the top 5 most-borrowed books.
+2. **Manage books** (`/books`) – search (title / author / ISBN / category), add, edit, delete. Each book tracks `totalCopies` and `availableCopies`.
+3. **Manage members** (`/members`) – search (name / email / phone), register, edit, activate/deactivate, delete.
+4. **Issue a book** (`/loans`) – choose an *active* member and a book with an available copy, optionally change loan length (default 14 days). Availability drops by one.
+5. **Return a book** (`/loans`) – click *Return*; the fine is calculated if late and availability increases by one.
+6. **Track loans** (`/loans`) – filter tabs: All / On loan / Overdue / Returned.
+
+## Business rules
+
+| Rule | Value / behaviour | Where |
+| --- | --- | --- |
+| Default loan period | 14 days (1–60 allowed per loan) | `backend/src/loans/loan.rules.ts` |
+| Max active loans per member | 5 | `loan.rules.ts` |
+| Same title twice | A member cannot hold two copies of the same book at once | `loans.service.ts` |
+| Inactive members | Cannot borrow | `loans.service.ts` |
+| Availability | Can only issue if `availableCopies > 0` | `loans.service.ts` |
+| Overdue | A loan is due until the **end of its due day**; overdue = 1+ whole calendar days past due date, not returned | `loan.rules.ts` |
+| Fine | 10 (currency-agnostic units) per overdue calendar day, fixed at return time | `loan.rules.ts` |
+| Delete book / member | Blocked while they have unreturned loans; past (returned) loans are deleted with them | `books.service.ts`, `members.service.ts` |
+| Reduce total copies | Cannot go below the number currently on loan | `books.service.ts` |
+| ISBN | Unique, 10–17 chars | DTO + DB unique index |
+| Member email | Unique, stored lower-case | `members.service.ts` |
+
+## Glossary
+
+| Term | Meaning |
+| --- | --- |
+| **Book / Title** | A catalogue entry identified by ISBN. One book row can have many physical copies. |
+| **Copy** | A physical item of a book. Tracked only as counts: `totalCopies`, `availableCopies`. |
+| **Member** | A registered library patron who can borrow books. `active=false` means suspended. |
+| **Loan** | One copy of one book lent to one member. Has `loanDate`, `dueDate`, optional `returnDate`, `fine`. |
+| **Issue / Borrow** | Creating a loan (`POST /api/loans`). |
+| **Return** | Closing a loan (`PATCH /api/loans/:id/return`). |
+| **Loan status** | Derived, not stored: `active` (out, not late), `overdue` (out, past due day), `returned`. |
+| **Days overdue** | Whole calendar days between due date and now (or the return date). |
+| **Fine** | `daysOverdue × 10`, stored on the loan when it is returned. |
+| **On loan / outstanding** | Loans with no `returnDate` (includes overdue). |
+| **Seed / sample data** | 16 books, 8 members, 12 loans loaded by `npm run seed` or automatically on first start. |
+
+## Tech summary
+
+React 18 + Vite + TypeScript · NestJS 10 + TypeORM 0.3 · SQLite via `better-sqlite3` · Jest / Supertest (backend) · Vitest + Testing Library (frontend). See [ARCHITECTURE.md](./ARCHITECTURE.md), [DATABASE.md](./DATABASE.md), [API_CONVENTIONS.md](./API_CONVENTIONS.md).
