@@ -1,6 +1,8 @@
 import type {
   Book,
   BookInput,
+  BulkTagInput,
+  BulkTagResult,
   DashboardStats,
   Loan,
   LoanInput,
@@ -20,7 +22,8 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const res = await fetch(`/api${path}`, {
+  const url = path.startsWith('/api') ? path : `/api${path}`;
+  const res = await fetch(url, {
     ...init,
     headers: { 'Content-Type': 'application/json', ...init.headers },
   });
@@ -66,6 +69,10 @@ export const api = {
   updateMember: (id: number, input: Partial<MemberInput>) =>
     request<Member>(`/members/${id}`, json('PATCH', input)),
   deleteMember: (id: number) => request<void>(`/members/${id}`, { method: 'DELETE' }),
+  bulkUpdateMemberTags: (input: BulkTagInput) =>
+    request<BulkTagResult>('/v1/members/tags', json('POST', input)),
+  bulkUpdateTags: (input: BulkTagInput) =>
+    request<BulkTagResult>('/v1/members/tags', json('POST', input)),
 
   getLoans: (status?: LoanStatus) => request<Loan[]>(`/loans${query({ status })}`),
   borrowBook: (input: LoanInput) => request<Loan>('/loans', json('POST', input)),

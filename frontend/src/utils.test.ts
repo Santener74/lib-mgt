@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDate, validateBook, validateMember } from './utils';
+import { formatDate, validateBook, validateBulkTag, validateMember } from './utils';
 
 const validBook = {
   title: 'Dune',
@@ -48,5 +48,25 @@ describe('formatDate', () => {
 
   it('formats ISO strings', () => {
     expect(formatDate('2026-03-10T12:00:00.000Z')).toMatch(/2026/);
+  });
+});
+
+describe('validateBulkTag', () => {
+  it('accepts valid bulk tag input', () => {
+    expect(validateBulkTag(1, 'vip')).toBeNull();
+    expect(validateBulkTag(50, 'student')).toBeNull();
+  });
+
+  it('rejects 0 selected members', () => {
+    expect(validateBulkTag(0, 'vip')).toBe('Please select at least one active member');
+  });
+
+  it('rejects more than 50 selected members', () => {
+    expect(validateBulkTag(51, 'vip')).toBe('Cannot update tags: maximum is 50 members');
+  });
+
+  it('rejects empty tag', () => {
+    expect(validateBulkTag(5, '')).toBe('Tag name is required');
+    expect(validateBulkTag(5, '   ')).toBe('Tag name is required');
   });
 });
