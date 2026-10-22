@@ -70,9 +70,9 @@ export const api = {
     request<Member>(`/members/${id}`, json('PATCH', input)),
   deleteMember: (id: number) => request<void>(`/members/${id}`, { method: 'DELETE' }),
   bulkUpdateMemberTags: (input: BulkTagInput) =>
-    request<BulkTagResult>('/v1/members/tags', json('POST', input)),
+    request<BulkTagResult>('/v1/members/bulk-tag', json('POST', input)),
   bulkUpdateTags: (input: BulkTagInput) =>
-    request<BulkTagResult>('/v1/members/tags', json('POST', input)),
+    request<BulkTagResult>('/v1/members/bulk-tag', json('POST', input)),
 
   getLoans: (status?: LoanStatus) => request<Loan[]>(`/loans${query({ status })}`),
   borrowBook: (input: LoanInput) => request<Loan>('/loans', json('POST', input)),
