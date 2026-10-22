@@ -85,4 +85,63 @@ describe('Library API (e2e)', () => {
     await http().get('/api/members/9999').expect(404);
     await http().patch('/api/loans/9999/return').expect(404);
   });
+
+  describe('POST /api/v1/members/bulk-tag', () => {
+    it('applies bulk tag add and remove to active members and returns 200 with updatedCount', async () => {
+      const m1 = (await http().post('/api/members').send({ name: 'Tag User 1', email: 'tag1@example.com' }).expect(201)).body;
+      const m2 = (await http().post('/api/members').send({ name: 'Tag User 2', email: 'tag2@example.com' }).expect(201)).body;
+
+      // Add tag
+      const addRes = await http()
+        .post('/api/v1/members/bulk-tag')
+        .send({ memberIds: [m1.id, m2.id], action: 'add', tag: 'scholar' })
+        .expect(200);
+      expect(addRes.body).toEqual({ updatedCount: 2 });
+
+      // Verify members have the tag
+      const checkM1 = (await http().get(`/api/members/${m1.id}`).expect(200)).body;
+      expect(checkM1.tags).toEqual(['scholar']);
+
+      // Remove tag
+      const removeRes = await http()
+        .post('/api/v1/members/bulk-tag')
+        .send({ memberIds: [m1.id], action: 'remove', tag: 'scholar' })
+        .expect(200);
+      expect(removeRes.body).toEqual({ updatedCount: 1 });
+
+      const checkM1After = (await http().get(`/api/members/${m1.id}`).expect(200)).body;
+      expect(checkM1After.tags).toEqual([]);
+    });
+
+    it('rejects more than 50 members with validation error stating maximum is 50', async () => {
+      const ids = Array.from({ length: 51 }, (_, i) => i + 1);
+      const res = await http()
+        .post('/api/v1/members/bulk-tag')
+        .send({ memberIds: ids, action: 'add', tag: 'alumni' })
+        .expect(400);
+
+      const message = Array.isArray(res.body.message) ? res.body.message.join(' ') : res.body.message;
+      expect(message).toMatch(/maximum is 50/i);
+    });
+
+    it('rejects if an inactive member is included', async () => {
+      const inactive = (
+        await http().post('/api/members').send({ name: 'Inactive User', email: 'inactive@example.com', active: false }).expect(201)
+      ).body;
+
+      const res = await http()
+        .post('/api/v1/members/bulk-tag')
+        .send({ memberIds: [inactive.id], action: 'add', tag: 'alumni' })
+        .expect(400);
+
+      expect(res.body.message).toMatch(/inactive/i);
+    });
+
+    it('returns 404 if any member is not found', async () => {
+      await http()
+        .post('/api/v1/members/bulk-tag')
+        .send({ memberIds: [99999], action: 'add', tag: 'alumni' })
+        .expect(404);
+    });
+  });
 });

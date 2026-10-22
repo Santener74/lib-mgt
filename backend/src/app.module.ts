@@ -12,6 +12,7 @@ import { Loan } from './loans/loan.entity';
 import { LoansModule } from './loans/loans.module';
 import { Member } from './members/member.entity';
 import { MembersModule } from './members/members.module';
+import { TagsModule } from './tags/tags.module';
 
 export interface AppOptions {
   dbPath: string;
@@ -45,6 +46,7 @@ export class AppModule {
       BooksModule,
       MembersModule,
       LoansModule,
+      TagsModule,
       DashboardModule,
       DatabaseModule.register(options.autoSeed),
     ];

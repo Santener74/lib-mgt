@@ -26,6 +26,23 @@ export interface Member {
   phone: string | null;
   active: boolean;
   joinedAt: string;
+  tags?: string[];
+}
+
+export type TagAction = 'add' | 'remove';
+
+export interface BulkTagInput {
+  memberIds: number[];
+  action: TagAction;
+  tag: string;
+}
+
+export interface BulkTagResult {
+  updatedCount?: number;
+  updated?: number;
+  count?: number;
+  message?: string;
+  [key: string]: unknown;
 }
 
 export interface MemberInput {

@@ -21,6 +21,9 @@ export class Member {
   @CreateDateColumn()
   joinedAt: Date;
 
+  @Column({ type: 'simple-json', nullable: true, default: '[]' })
+  tags: string[];
+
   @OneToMany(() => Loan, (loan) => loan.member)
   loans: Loan[];
 }

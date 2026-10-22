@@ -46,4 +46,22 @@ describe('api client', () => {
     expect(error.status).toBe(400);
     expect(error.message).toBe('title should not be empty, isbn must be longer');
   });
+
+  it('sends bulk tag update to /api/v1/members/bulk-tag', async () => {
+    const fetchMock = mockFetch(200, { updatedCount: 3 });
+    const res = await api.bulkUpdateMemberTags({
+      memberIds: [1, 2, 3],
+      action: 'add',
+      tag: 'vip',
+    });
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('/api/v1/members/bulk-tag');
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(init.body)).toEqual({
+      memberIds: [1, 2, 3],
+      action: 'add',
+      tag: 'vip',
+    });
+    expect(res).toEqual({ updatedCount: 3 });
+  });
 });
