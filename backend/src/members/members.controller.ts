@@ -10,13 +10,26 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { BulkTagDto } from './dto/bulk-tag.dto';
 import { CreateMemberDto } from './dto/create-member.dto';
 import { UpdateMemberDto } from './dto/update-member.dto';
 import { MembersService } from './members.service';
 
-@Controller('members')
+@Controller(['members', 'v1/members'])
 export class MembersController {
   constructor(private readonly membersService: MembersService) {}
+
+  @Post('bulk-tag')
+  @HttpCode(200)
+  bulkTag(@Body() dto: BulkTagDto) {
+    return this.membersService.bulkTag(dto);
+  }
+
+  @Post('tags')
+  @HttpCode(200)
+  bulkTagAlias(@Body() dto: BulkTagDto) {
+    return this.membersService.bulkTag(dto);
+  }
 
   @Get()
   findAll(@Query('search') search?: string) {

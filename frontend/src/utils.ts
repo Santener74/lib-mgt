@@ -40,6 +40,13 @@ export function formatDate(value: string | null | undefined): string {
   return new Date(value).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
+export function validateBulkTag(selectedCount: number, tag: string): string | null {
+  if (selectedCount === 0) return 'Please select at least one active member';
+  if (selectedCount > 50) return 'Cannot update tags: maximum is 50 members';
+  if (!tag.trim()) return 'Tag name is required';
+  return null;
+}
+
 export function errorMessage(err: unknown): string {
   return err instanceof Error ? err.message : 'Something went wrong';
 }
